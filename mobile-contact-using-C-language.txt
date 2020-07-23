@@ -1,0 +1,548 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAXSMS 200
+
+typedef struct node
+{
+    struct node *next;
+    int entry;
+    char name[100];
+    char message[MAXSMS][500];
+    char messageName[MAXSMS][100];
+
+}Node;
+typedef struct{
+
+    Node *head;
+    int count;
+    int smscount;
+}List;
+void CreateList(List *s)
+{
+    s->count=0;
+    s->smscount=0;
+    s->head=NULL;
+}
+int IsEmpty(List *s)
+{
+    return (s->head==NULL);
+}
+int IsFull(List *s)
+{
+    return 0;
+}
+void InsertBegin(List *s,int value)
+{
+    Node *np;
+    np = (Node*)malloc(sizeof(Node));
+
+    np->entry = value;
+
+    if(IsEmpty(s))
+    {
+         np->next = NULL;
+    }
+    else
+    {
+        np->next = s->head;
+    }
+    s->head = np;
+    s->count++;
+    FileHadling(s);
+
+}
+void InsertEnd(List *s,int value,char GetString[100])
+{
+   Node *np;
+   Node *temp;
+   temp = (Node*)malloc(sizeof(Node));
+   np = (Node*)malloc(sizeof(Node));
+
+   np->entry = value;
+   np->next = NULL;
+   strcpy(np->name,GetString);
+
+   if(IsEmpty(s))
+   {
+       s->head = np;
+   }
+   else
+   {
+       temp = s->head;
+       while(temp->next != NULL)
+       {
+          temp = temp->next;
+       }
+      temp->next = np;
+
+   }
+   s->count++;
+   FileHadling(s);
+
+}
+void InsertPosition(List *s,int position,int value)
+{
+    Node *np;
+    Node *temp;
+    temp = (Node*)malloc(sizeof(Node));
+    np = (Node*)malloc(sizeof(Node));
+
+    np->entry = value;
+
+    if(position <1 || position >(s->count))
+    {
+        printf("\nPosition is invalid !\n");
+    }
+    else
+    {
+        temp = s->head;
+        if(position == 1)
+        {
+            InsertBegin(s,value);
+        }
+        else
+        {
+            for(int i=1;i<position-1;i++)
+            {
+                temp =  temp->next;
+            }
+            np->next = temp->next;
+            temp->next = np;
+            s->count++;
+
+        }
+
+    }
+    FileHadling(s);
+
+}
+void DeleteBegin(List *s)
+{
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty !\n");
+    }
+    else
+    {
+        //printf("\nDelete value :%d",s->head->entry);
+        s->head = s->head->next;
+        s->count--;
+    }
+    printf("\nContact was deleted !\n");
+    FileHadling(s);
+
+}
+void DeleteEnd(List *s)
+{
+    Node *temp;
+    temp = (Node*)malloc(sizeof(Node));
+
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty !\n");
+    }
+    else
+    {
+        temp = s->head;
+        while(temp->next->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = NULL;
+        printf("\nContact was Deleted !\n");
+        s->count--;
+    }
+    FileHadling(s);
+
+}
+void DeletePosition(List *s,int position)
+{
+    Node *temp;
+    temp = (Node*)malloc(sizeof(Node));
+
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty !\n");
+    }
+    else
+    {
+        temp = s->head;
+        if(position<1 || position>(s->count))
+        {
+            printf("\nPosition is invalid !\n");
+        }
+        else if(position==1)
+        {
+            DeleteBegin(s);
+        }
+        else if(position>1)
+        {
+            for(int i=1;i<position-1;i++)
+            {
+                temp = temp->next;
+            }
+            printf("\nContact was Deleted !\n");
+
+            temp->next = temp->next->next;
+            s->count--;
+
+            FileHadling(s);
+        }
+        else if(position == (s->count))
+        {
+            DeleteEnd(s);
+        }
+
+    }
+
+
+}
+void Display(List *s)
+{
+    Node *temp;
+    temp = (Node*)malloc(sizeof(temp));
+
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty,nothing to display !\n");
+    }
+    else
+    {
+        temp = s->head;
+        printf("\nContact\n=========\n");
+       for(int i=0;i<(s->count);i++)
+        {
+            printf("%d) Name :%s\n   Number :%d\n\n",i+1,temp->name,temp->entry);
+            temp = temp->next;
+        }
+
+    }
+
+}
+void UpdateContact(List *s,char getname[])
+{
+   Node *temp;
+    int getValue;
+    temp = (Node*)malloc(sizeof(temp));
+
+
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty,nothing to display !\n");
+    }
+    else
+    {
+        temp = s->head;
+
+       for(int i=0;i<(s->count);i++)
+        {
+            if(strcmp(strlwr(temp->name),getname)== 0)
+            {
+                printf("\nExiting number :%d\n",temp->entry);
+                printf("Enter new number :");
+                scanf("%d",&getValue);
+                temp->entry = getValue;
+                printf("\nRecord successfully updated!\n");
+            }
+
+            temp = temp->next;
+        }
+    FileHadling(s);
+    }
+
+}
+void searchContact(List *s)
+{
+    Node *temp;
+    char name[100];
+    temp = (Node*)malloc(sizeof(temp));
+
+    if(IsEmpty(s))
+    {
+        printf("\nList is Empty,nothing to display !\n");
+    }
+    else
+    {
+        printf("Search name :");
+        scanf(" %[^\n]s",&name);
+
+        temp = s->head;
+
+       for(int i=0;i<(s->count);i++)
+        {
+            if(strcmp(strlwr(name),strlwr(temp->name)) == 0)
+            {
+                printf("%d) Name :%s\n   Number :%d\n\n",i+1,temp->name,temp->entry);
+            }
+            temp = temp->next;
+        }
+
+    }
+
+}
+void PutMessages(List *s,char getmessage[])
+{
+    char name[50];
+    int m=0;
+    Node *temp;
+    Node *sms;
+    temp = (Node*)malloc(sizeof(temp));
+    sms = (Node*)malloc(sizeof(sms));
+
+    if(IsEmpty(s))
+    {
+        printf("Contact is empty !");
+    }
+    else
+    {
+        if((s->smscount) < MAXSMS)
+        {
+            printf("Enter contact name :");
+            scanf(" %[^\n]s",&name);
+
+                 temp = s->head;
+                 sms = s->head;
+
+               for(int i=0;i<(s->count);i++)
+                {
+                    if(strcmp(strlwr(name),strlwr(temp->name)) == 0)
+                    {
+                       strcpy(sms->messageName[s->smscount],temp->name);
+                       strcpy(sms->message[s->smscount],getmessage);
+
+                       printf("\nMessage send Succesfull !\n");
+                       m = 1;
+                       s->smscount++;
+                    }
+                    temp = temp->next;
+                }
+
+                if(m == 0)
+                {
+                    printf("\nContact name is not found !\n");
+                }
+                FileHadling(s);
+        }
+        else
+        {
+            printf("\nMessage Full !\n");
+        }
+
+    }
+
+}
+void DisplayMessage(List *s)
+{
+    Node *sms;
+    sms = (Node*)malloc(sizeof(sms));
+
+    if(IsEmpty(s))
+    {
+        printf("\nContact is Empty !\n");
+    }
+    else
+    {
+        if((s->smscount) > 0)
+        {
+            sms = s->head;
+            for(int i=0;i<(s->smscount);i++)
+            {
+                printf("%d) Name : %s\n   Message : %s\n\n",i+1,sms->messageName[i],sms->message[i]);
+            }
+
+        }
+        else
+        {
+            printf("\nNo Message to display !\n");
+        }
+
+    }
+
+}
+void MessageDelete(List *s,int position)
+{
+    Node *sms;
+    sms = (Node*)malloc(sizeof(Node));
+
+    if(IsEmpty(s))
+    {
+        printf("\nContact is Empty !\n");
+    }
+    else
+    {
+        if((s->smscount) > 0)
+        {
+            if(position < (s->smscount))
+            {
+                sms = s->head;
+                for(int i=position-1;i<(s->smscount)-1;i++)
+                {
+                    strcpy(sms->messageName[i],sms->messageName[i+1]);
+                    strcpy(sms->message[i],sms->message[i+1]);
+                }
+
+                s->smscount--;
+                printf("\nMessage was deleted !\n");
+
+                FileHadling(s);
+            }
+            else if(position == s->smscount)
+            {
+                s->smscount--;
+                printf("\nMessage was deleted !\n");
+
+                FileHadling(s);
+            }
+            else
+            {
+                printf("\nPosition is no there !\n");
+            }
+
+        }
+        else
+        {
+            printf("\nNo message to delete !\n");
+        }
+
+    }
+
+}
+
+void FileHadling(List *s)
+{
+    FILE *file;
+    file = fopen("C:\\Users\\sachi dissanayake\\Desktop\\text.txt","w+");
+
+    Node *temp;
+    temp = (Node*)malloc(sizeof(temp));
+
+    if(IsEmpty(s))
+    {
+        fprintf(file,"\nList is Empty,nothing to display !\n");
+    }
+    else
+    {
+        temp = s->head;
+        fprintf(file,"\nContact\n=========\n");
+
+       for(int i=0;i<(s->count);i++)
+        {
+            fprintf(file,"%d) %d,%s\n",i+1,temp->entry,temp->name);
+            temp = temp->next;
+        }
+
+        fprintf(file,"\nMessages\n========\n");
+
+        for(int i=0;i<(s->smscount);i++)
+        {
+            fprintf(file,"%d. Name   :%s\n  Message :%s\n",i+1,s->head->messageName[i],s->head->message[i]);
+        }
+
+    }
+    fclose(file);
+
+}
+int main()
+{
+    List s;
+    int MainPosition;
+    int value,position; //position -is delete contact and msg positions // value - contact number
+    char choise;                     //SmsPosition - means count of sms //GetString - get a name for contact
+    char GetString[100],GetMessage[500];
+
+    CreateList(&s);
+
+    do{
+
+            printf("\n\tMAIN MENU\n\t=========\n\t1. Contacts \n\t2. Messages \n\t3. Exit\n");
+            printf("Select :");
+            scanf("%d",&MainPosition);
+
+            if(MainPosition == 1)
+        {
+            printf("\t   Contact\n\t   ========\n\ta. Add Contact \n\tb. Update Contact \n\tc. Display Contacts \n\td. Delete Contact \n\te. Search Contact ");
+            printf("\nChoise :");
+            scanf(" %[^\n]c",&choise);
+
+                if(choise == 'a')
+                {
+                    printf("\nAdd Contact\n-----------\n");
+                    printf("Enter Name :");
+                    scanf(" %[^\n]s",&GetString);
+                    printf("Contact number :");
+                    scanf("%d",&value);
+                    InsertEnd(&s,value,GetString);
+
+                }
+                else if(choise == 'b')
+                {
+                    printf("\nUpdate Contact\n------------\n");
+                    Display(&s);
+                    printf("\nSearch Number from Contact\n");
+                    printf("Enter Name :");
+                    scanf(" %[^\n]s",&GetString);
+                    UpdateContact(&s,strlwr(GetString));
+
+                }
+                else if(choise == 'c')
+                {
+                    Display(&s);
+                }
+                else if(choise == 'd')
+                {
+                    printf("\nDelete Contact\n--------------\n");
+                    Display(&s);
+                    printf("Enter Postion to delete :");
+                    scanf("%d",&position);
+                    DeletePosition(&s,position);
+                }
+                else if(choise == 'e')
+                {
+                    Display(&s);
+                    searchContact(&s);
+                }
+
+
+            }
+            else if(MainPosition == 2)
+            {
+                printf("\n\tMessages\n\t---------");
+                printf("\n\ta. Compose Message\n\tb. Display Message\n\tc. Delete Message\n");
+                printf("choise :");
+                scanf(" %[^\n]c",&choise);
+
+                if(choise == 'a')
+                {
+                    printf("\nCompose Message\n---------------\n");
+                    printf("Enter your message :");
+                    scanf(" %[^\n]s",&GetMessage);
+                    PutMessages(&s,GetMessage);
+                }
+                else if(choise == 'b')
+                {
+                    printf("\nDisplay Message\n-------------\n");
+                    DisplayMessage(&s);
+                }
+                else if(choise == 'c')
+                {
+                    printf("\nDelete Message\n--------------\n");
+                    DisplayMessage(&s);
+                    printf("Select position Message to Delete :");
+                    scanf("%d",&position);
+                    MessageDelete(&s,position);
+                }
+
+            }
+            printf("\n==================================\n");
+    }
+    while(MainPosition != 3);
+
+        return 0;
+
+}
+
+
+
+
+
